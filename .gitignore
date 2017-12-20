@@ -1,0 +1,9 @@
+*.swp
+curve/
+data/
+model/
+predict/
+report/
+struct_pic/
+tmp/
+__pycache__/
