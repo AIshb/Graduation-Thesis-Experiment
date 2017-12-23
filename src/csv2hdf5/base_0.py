@@ -47,12 +47,15 @@ def save_hdf5(group, filename, length):
     month_size = 12
     day_size = 92
     month_x_t_c = group.create_dataset('month/x_t_c', (length, month_size, 50))
-    month_x_t_d = group.create_dataset('month/x_t_d', (length, month_size))
+    month_x_t_d = group.create_dataset('month/x_t_d', (length, month_size)) # 终端
     day_x_t_c = group.create_dataset('day/x_t_c', (length, day_size, 34))
     x_c_c = group.create_dataset('x_c_c', (length, 2)) # 入网时长、年龄
     x_c_d_1 = group.create_dataset('x_c_d_1', (length, 1), dtype='i') # 性别
     x_c_d_2 = group.create_dataset('x_c_d_2', (length, 1), dtype='i') # 是否上海人
     x_wide = group.create_dataset('x_wide', (length, 122))
+    month_x_t_n0 = group.create_dataset('month/x_t_n0', (length, 1), dtype='i')
+    day_x_t_n0 = group.create_dataset('day/x_t_n0', (length, 1), dtype='i')
+    x_c_n0 = group.create_dataset('x_c_n0', (length, 1), dtype='i')
     y = group.create_dataset('y', (length,), dtype='i')
 
     with open(filename) as file:
@@ -72,6 +75,9 @@ def save_hdf5(group, filename, length):
             line_c_c = [v if v != -9999.0 else 0 for v in [x[4], x[2]]]
             line_c_d_1 = [0 if x[1] == -9999.0 else int(x[1])+1]
             line_c_d_2 = [0 if x[0] == -9999.0 else int(x[0])+1]
+            line_month_x_t_n0 = []
+            line_day_x_t_n0 = []
+            line_x_c_n0 = []
 
             # 月
             features = x[3:3+52*month_size]
@@ -88,6 +94,14 @@ def save_hdf5(group, filename, length):
                 end = (j + 1) * 34
                 line_day_t_c.append([v if v != -9999.0 else 0 for v in features[start:end]])
 
+            # 统计0的数量
+            line_month_x_t_n0.append(sum([1 if v == 0 else 0 for v in line_month_t_c]) \
+                                    +sum([1 if v == 0 else 0 for v in line_month_t_d]))
+            line_day_x_t_n0.append(sum([1 if v == 0 else 0 for v in line_day_t_c]))
+            line_x_c_n0.append(sum(1 if v == 0 else 0 for v in line_c_c) \
+                            +(1 if line_c_d_1[0] == 0 else 0) \
+                            +(1 if line_c_d_2[0] == 0 else 0))
+
 #            print(np.array(line_month_t_c).shape)
             month_x_t_c[i] = np.array(line_month_t_c)
             month_x_t_d[i] = np.array(line_month_t_d)
@@ -96,6 +110,9 @@ def save_hdf5(group, filename, length):
             x_c_d_1[i] = np.array(line_c_d_1)
             x_c_d_2[i] = np.array(line_c_d_2)
             x_wide[i] = np.array(wide_feature(x))
+            month_x_t_n0[i] = np.array(line_month_x_t_n0)
+            day_x_t_n0[i] = np.array(line_day_x_t_n0)
+            x_c_n0[i] = np.array(line_x_c_n0)
 
 def main():
     train_file = sys.argv[1]

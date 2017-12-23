@@ -1,6 +1,7 @@
 #!/bin/bash
 
 config_file=$1
+export CUDA_VISIBLE_DEVICES="$2"
 
 source config/env.sh
 source $config_file
