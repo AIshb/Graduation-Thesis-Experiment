@@ -7,3 +7,4 @@ report/
 struct_pic/
 tmp/
 __pycache__/
+*test*
