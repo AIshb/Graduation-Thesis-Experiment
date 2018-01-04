@@ -21,7 +21,7 @@ def parse_args():
     
     parser = argparse.ArgumentParser()
     if FLAGS.mode == 'train':
-        print('train')
+#        print('train')
         parser.add_argument('-M', '--mode', type=str,
                             choices=['train', 'predict'], help='mode')
         parser.add_argument('-bs', '--batch_size', type=int,
@@ -46,7 +46,7 @@ def parse_args():
                             help='model struct')
 
     elif FLAGS.mode == 'predict':
-        print('predict')
+#        print('predict')
         parser.add_argument('-M', '--mode', type=str,
                             choices=['train', 'predict'], help='mode')
         parser.add_argument('-d', '--data', type=str,

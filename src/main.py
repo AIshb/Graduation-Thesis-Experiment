@@ -15,7 +15,6 @@ from tf_backend import *
 
 def main():
     FLAGS = parse_args()
-    print(FLAGS)
 
     if FLAGS.mode == 'train':
         print('-------------')
