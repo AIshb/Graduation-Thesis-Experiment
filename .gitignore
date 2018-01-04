@@ -2,7 +2,7 @@
 curve/
 data/
 model/
-predict/
+predict_proba/
 report/
 struct_pic/
 tmp/
