@@ -1,7 +1,7 @@
 *.swp
 curve/
 data/
-model/
+saved_model/
 predict_proba/
 report/
 struct_pic/

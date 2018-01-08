@@ -43,7 +43,8 @@ def main():
                                       validation_data=generator.valid())
 
         print('load best model...')
-        model_path = sorted(glob(FLAGS.model+'*'))[-1]
+        model_path = sorted(glob(FLAGS.model+'.*'))[-1]
+        print(model_path)
         model = load_model(model_path)
 
         print('predict...')

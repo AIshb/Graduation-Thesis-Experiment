@@ -121,9 +121,6 @@ def main():
     train_len = 1132343
     valid_len = 283086
     test_len = 1380154
-#    train_len = 10
-#    valid_len = 10
-#    test_len = 10
     
     f = h5py.File(sys.argv[4], 'w')
 
