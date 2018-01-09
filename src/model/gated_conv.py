@@ -9,14 +9,15 @@ from keras.layers import multiply, add, concatenate
 from keras.layers import Conv1D, MaxPooling1D
 from keras.optimizers import Adam
 
-def GatedCNN(input_tensor, nb_filter, filter_length, stage, block):
-    conv_name_base = 'conv' + str(stage) + block + '_'
-    A = Conv1D(nb_filter, filter_length, padding='same', name=conv_name_base+'a')(input_tensor)
-    B = Conv1D(nb_filter, filter_length, padding='same', name=conv_name_base+'b')(input_tensor)
+def GatedCNN(input_tensor, nb_filter, filter_length, stage, block, layer, strides=1, padding='valid'):
+    conv_name_base = 'res' + str(stage) + block + '_branch' + layer + '_'
+#    bn_name_base = 'bn' + str(stage) + block + '_branch' + layer + '_'
+    A = Conv1D(nb_filter, filter_length, strides=strides, padding=padding, name=conv_name_base+'a')(input_tensor)
+    B = Conv1D(nb_filter, filter_length, strides=strides, padding=padding, name=conv_name_base+'b')(input_tensor)
     B_sig = Activation('sigmoid')(B)
     x = multiply([A, B_sig])
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+#    x = BatchNormalization(name=bn_name_base)(x)
+#    x = Activation('relu')(x)
     return x
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -24,15 +25,18 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Conv1D(nb_filter1, 1, padding='same', name=conv_name_base + '2a')(input_tensor)
+#    x = Conv1D(nb_filter1, 1, padding='same', name=conv_name_base + '2a')(input_tensor)
+    x = GatedCNN(input_tensor, nb_filter1, 1, stage, block, '2a', padding='same')
     x = BatchNormalization(name=bn_name_base + '2a')(x)
     x = Activation('relu')(x)
 
-    x = Conv1D(nb_filter2, kernel_size, padding='same', name=conv_name_base + '2b')(x)
+#    x = Conv1D(nb_filter2, kernel_size, padding='same', name=conv_name_base + '2b')(x)
+    x = GatedCNN(x, nb_filter2, kernel_size, stage, block, '2b', padding='same')
     x = BatchNormalization(name=bn_name_base+'2b')(x)
     x = Activation('relu')(x)
 
-    x = Conv1D(nb_filter3, 1, name=conv_name_base + '2c')(x)
+#    x = Conv1D(nb_filter3, 1, name=conv_name_base + '2c')(x)
+    x = GatedCNN(x, nb_filter3, 1, stage, block, '2c')
     x = BatchNormalization(name=bn_name_base + '2c')(x)
     
     x = add([x, input_tensor])
@@ -44,30 +48,27 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, stride=2):
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Conv1D(nb_filter1, 1, strides=stride, name=conv_name_base + '2a')(input_tensor)
+#    x = Conv1D(nb_filter1, 1, strides=stride, name=conv_name_base + '2a')(input_tensor)
+    x = GatedCNN(input_tensor, nb_filter1, 1, stage, block, '2a', strides=stride)
     x = BatchNormalization(name=bn_name_base + '2a')(x)
     x = Activation('relu')(x)
 
-    x = Conv1D(nb_filter2, kernel_size, padding='same', name=conv_name_base + '2b')(x)
+#    x = Conv1D(nb_filter2, kernel_size, padding='same', name=conv_name_base + '2b')(x)
+    x = GatedCNN(x, nb_filter2, kernel_size, stage, block, '2b', padding='same')
     x = BatchNormalization(name=bn_name_base + '2b')(x)
     x = Activation('relu')(x)
 
-    x = Conv1D(nb_filter3, 1, name=conv_name_base + '2c')(x)
+#    x = Conv1D(nb_filter3, 1, name=conv_name_base + '2c')(x)
+    x = GatedCNN(x, nb_filter3, 1, stage, block, '2c')
     x = BatchNormalization(name=bn_name_base + '2c')(x)
 
     shortcut = Conv1D(nb_filter3, 1, strides=stride, name=conv_name_base + '1')(input_tensor)
     shortcut = BatchNormalization(name=bn_name_base + '1')(shortcut)
-
     x = add([x, shortcut])
     x = Activation('relu')(x)
     return x
 
 def build_model(time_dim=12):
-#    batch_size = 128
-#    month_size = 12
-#    cur_filename = __file__.split('/')[-1].split('.')[0] if len(sys.argv) < 4 else sys.argv[3]
-#    generator = BatchGenerator(sys.argv[1])
-
     x_t_c = Input(shape=(time_dim, 50), dtype='float32', name='month/x_t_c')
     x_t_d = Input(shape=(time_dim,), dtype='int32', name='month/x_t_d')
     x_c_c = Input(shape=(2,), dtype='float32', name='x_c_c')
@@ -108,6 +109,11 @@ def build_model(time_dim=12):
                   metrics=['accuracy'])
 
     return model
+
+def main():
+    model = build_model()
+    model.summary()
+
 
 if __name__ == '__main__':
     main()

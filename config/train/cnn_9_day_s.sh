@@ -1,7 +1,5 @@
 #!/bin/bash
 
-name=cnn_9_day_s
-
 batch_size=128
 time_dim=92
 data=$data_dir/shuffle.hdf5

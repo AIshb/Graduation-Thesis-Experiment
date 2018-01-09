@@ -1,7 +1,5 @@
 #!/bin/bash
 
-name=cnn_9
-
 batch_size=128
 time_dim=12
 data=$data_dir/data.hdf5

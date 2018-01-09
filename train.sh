@@ -3,6 +3,8 @@
 config_file=$1
 export CUDA_VISIBLE_DEVICES="$2"
 
+name=`echo $config_file | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
+
 source config/env.sh
 source $config_file
 
