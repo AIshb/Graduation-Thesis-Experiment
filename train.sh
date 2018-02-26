@@ -28,6 +28,10 @@ python3 main.py \
     --predict $predict \
     --curve $curve \
     --struct_pic $struct_pic
+if [ $? -ne 0 ]; then
+    echo "error occur!!"
+    exit 1
+fi
 end_time=`date "+%Y%m%d %H:%M:%S"`
 
 echo "begin_time: $begin_time"
