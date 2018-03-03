@@ -9,7 +9,7 @@ from keras.layers import add, multiply, concatenate
 from keras.layers import Conv1D, MaxPooling1D
 from keras.optimizers import Adam
 
-def GatedCNN(input_tensor, nb_filter, kernel_size, stoge, block):
+def GatedCNN(input_tensor, nb_filter, kernel_size, stage, block):
     conv_name_base = 'conv' + str(stage) + block + '-'
     A = Conv1D(nb_filter, kernel_size, padding='same', name=conv_name_base+'a')(input_tensor)
     B = Conv1D(nb_filter, kernel_size, padding='same', name=conv_name_base+'b')(input_tensor)
@@ -20,9 +20,6 @@ def GatedCNN(input_tensor, nb_filter, kernel_size, stoge, block):
     return x
 
 def build_model(time_dim=12):
-#    batch_size = 128
-#    month_size = 12
-
     x_t_c = Input(shape=(time_dim, 50), dtype='float32', name='month/x_t_c')
     x_t_d = Input(shape=(time_dim,), dtype='int32', name='month/x_t_d')
     x_c_c = Input(shape=(2,), dtype='float32', name='x_c_c')
@@ -37,6 +34,10 @@ def build_model(time_dim=12):
     embedding_2_d_2 = Flatten(name='flatten_2_d_2')(embedding_2_d_2)
 
     x = concatenate([x_t_c, embedding_1_d])
+    x = BatchNormalization(name='bn_input')(x)
+    x = Conv1D(64, 1, name='conv1')(x)
+    x = BatchNormalization(name='bn_conv1')(x)
+    x = Activation('relu')(x)
 
     x = GatedCNN(x, 64, 5, stage=1, block='a')
     x = GatedCNN(x, 64, 5, stage=1, block='b')
@@ -68,5 +69,6 @@ def build_model(time_dim=12):
     return model
 
 if __name__ == '__main__':
-    main()
+    model = build_model()
+    model.summary()
 

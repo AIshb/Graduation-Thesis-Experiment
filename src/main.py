@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 from glob import glob
 from importlib import import_module
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, TerminateOnNaN
 from keras.models import load_model
 from keras.utils import plot_model
 
@@ -35,11 +35,12 @@ def main():
         print('training...')
         mc = ModelCheckpoint('%s.{epoch:03d}-{val_loss:.5f}.hdf5'%FLAGS.model,
                              'val_loss', save_best_only=True)
-        es = EarlyStopping('val_loss', patience=200)
+        es = EarlyStopping('val_loss', patience=100)
+        ton = TerminateOnNaN()
         history = model.fit_generator(generator.train(FLAGS.batch_size),
                                       steps_per_epoch=1000,
                                       epochs=1000,
-                                      callbacks=[mc, es],
+                                      callbacks=[mc, es, ton],
                                       validation_data=generator.valid())
 
         print('load best model...')

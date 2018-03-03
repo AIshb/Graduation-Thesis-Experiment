@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys 
+import numpy as np
+from keras.models import Model
+from keras.layers import Input, Embedding, Dense, Dropout, BatchNormalization, Activation, Flatten, Reshape
+from keras.layers import add, concatenate
+from keras.layers import Conv1D, MaxPooling1D
+from keras.optimizers import Adam
+from keras import backend as K
+
+def build_model(time_dim=12):
+    x_t_c = Input(shape=(time_dim, 50), dtype='float32', name='month/x_t_c')
+    x_t_d = Input(shape=(time_dim,), dtype='int32', name='month/x_t_d')
+    x_c_c = Input(shape=(2,), dtype='float32', name='x_c_c')
+    x_c_d_1 = Input(shape=(1,), dtype='int32', name='x_c_d_1')
+    x_c_d_2 = Input(shape=(1,), dtype='int32', name='x_c_d_2')
+#    x_wide = Input(shape=(122,), dtype='float32', name='x_wide')
+
+    embedding_1_d  = Embedding(input_dim=7+2, output_dim=5, input_length=time_dim, name='embedding_1_d')(x_t_d)
+    embedding_2_d_1 = Embedding(input_dim=4+2, output_dim=5, input_length=1, name='embedding_2_d_1')(x_c_d_1)
+    embedding_2_d_2 = Embedding(input_dim=2+2, output_dim=5, input_length=1, name='embedding_2_d_2')(x_c_d_2)
+    embedding_2_d_1 = Flatten(name='flatten_2_d_1')(embedding_2_d_1)
+    embedding_2_d_2 = Flatten(name='flatten_2_d_2')(embedding_2_d_2)
+
+    x = concatenate([x_t_c, embedding_1_d])
+    x = BatchNormalization(name='bn_input')(x)
+
+    shape = x.get_shape().as_list()
+    dim = shape[1] * shape[2] + 2 + 5 + 5
+
+    x = Flatten()(x)
+    x = concatenate([x, x_c_c, embedding_2_d_1, embedding_2_d_2])
+    x = Dense(dim, activation='relu')(x)
+    x = Dense(dim//2, activation='relu')(x)
+    output = Dense(1, activation='sigmoid')(x)
+
+    model= Model(inputs=[x_t_c, x_t_d, x_c_c, x_c_d_1, x_c_d_2], outputs=output)
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+
+    return model
+
+if __name__ == '__main__':
+    model = build_model()
+    model.summary()
+

@@ -53,11 +53,6 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, stride=2):
     return x
 
 def build_model(time_dim=12):
-#    batch_size = 128
-#    month_size = 12
-#    cur_filename = __file__.split('/')[-1].split('.')[0] if len(sys.argv) < 4 else sys.argv[3]
-#    generator = BatchGenerator(sys.argv[1])
-
     x_t_c = Input(shape=(time_dim, 50), dtype='float32', name='month/x_t_c')
     x_t_d = Input(shape=(time_dim,), dtype='int32', name='month/x_t_d')
     x_c_c = Input(shape=(2,), dtype='float32', name='x_c_c')
@@ -100,5 +95,6 @@ def build_model(time_dim=12):
     return model
 
 if __name__ == '__main__':
-    main()
+    model = build_model()
+    model.summary()
 
