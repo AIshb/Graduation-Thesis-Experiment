@@ -3,7 +3,7 @@
 batch_size=128
 time_dim=92
 data=$data_dir/shuffle.hdf5
-network_struct=model.cnn_9_day
+network_struct=model.cnn_10_day
 batch_generator=batch.cnn_day
 model=$model_dir/$name
 report=$report_dir/$name

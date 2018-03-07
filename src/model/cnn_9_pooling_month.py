@@ -6,8 +6,7 @@ import numpy as np
 from keras.models import Model
 from keras.layers import Input, Embedding, Dense, Dropout, BatchNormalization, Activation, Flatten
 from keras.layers import add, concatenate
-from keras.layers import Conv1D, MaxPooling1D
-from keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D
+from keras.layers import Conv1D, MaxPooling1D, AveragePooling1D
 from keras.optimizers import Adam
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -54,18 +53,20 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, stride=2):
     return x
 
 def build_model(time_dim=12):
-    x_t_c = Input(shape=(time_dim, 34), dtype='float32', name='day/x_t_c')
+    x_t_c = Input(shape=(time_dim, 50), dtype='float32', name='month/x_t_c')
+    x_t_d = Input(shape=(time_dim,), dtype='int32', name='month/x_t_d')
     x_c_c = Input(shape=(2,), dtype='float32', name='x_c_c')
     x_c_d_1 = Input(shape=(1,), dtype='int32', name='x_c_d_1')
     x_c_d_2 = Input(shape=(1,), dtype='int32', name='x_c_d_2')
     x_wide = Input(shape=(122,), dtype='float32', name='x_wide')
 
+    embedding_1_d  = Embedding(input_dim=7+2, output_dim=5, input_length=time_dim, name='embedding_1_d')(x_t_d)
     embedding_2_d_1 = Embedding(input_dim=4+2, output_dim=5, input_length=1, name='embedding_2_d_1')(x_c_d_1)
     embedding_2_d_2 = Embedding(input_dim=2+2, output_dim=5, input_length=1, name='embedding_2_d_2')(x_c_d_2)
     embedding_2_d_1 = Flatten(name='flatten_2_d_1')(embedding_2_d_1)
     embedding_2_d_2 = Flatten(name='flatten_2_d_2')(embedding_2_d_2)
 
-    x = x_t_c
+    x = concatenate([x_t_c, embedding_1_d])
     x = BatchNormalization(name='bn_input')(x)
     x = Conv1D(64, 1, name='conv1')(x)
     x = BatchNormalization(name='bn_conv1')(x)
@@ -78,16 +79,16 @@ def build_model(time_dim=12):
     x = identity_block(x, 3, [128, 128, 512], stage=3, block='b')
     x = identity_block(x, 3, [128, 128, 512], stage=3, block='c')
 
-#    x = Flatten()(x)
-    x = GlobalMaxPooling1D()(x)
-#    x = GlobalAveragePooling1D()(x)
+    x = AveragePooling1D()(x)
+
+    x = Flatten()(x)
     x = concatenate([x, x_c_c, embedding_2_d_1, embedding_2_d_2])
     x = Dense(256, activation='relu')(x)
     x = Dense(64, activation='relu')(x)
     x = concatenate([x, x_wide])
     output = Dense(1, activation='sigmoid')(x)
 
-    model= Model(inputs=[x_t_c, x_c_c, x_c_d_1, x_c_d_2, x_wide], outputs=output)
+    model= Model(inputs=[x_t_c, x_t_d, x_c_c, x_c_d_1, x_c_d_2, x_wide], outputs=output)
 
     model.compile(loss='binary_crossentropy',
                   optimizer='adam',
