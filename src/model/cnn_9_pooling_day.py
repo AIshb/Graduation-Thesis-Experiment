@@ -6,8 +6,8 @@ import numpy as np
 from keras.models import Model
 from keras.layers import Input, Embedding, Dense, Dropout, BatchNormalization, Activation, Flatten
 from keras.layers import add, concatenate
-from keras.layers import Conv1D, MaxPooling1D
-from keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D
+from keras.layers import Conv1D, MaxPooling1D, AveragePooling1D
+from keras.layers import GlobalMaxPooling1D
 from keras.optimizers import Adam
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -53,7 +53,7 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, stride=2):
     x = Activation('relu')(x)
     return x
 
-def build_model(time_dim=92):
+def build_model(time_dim=12):
     x_t_c = Input(shape=(time_dim, 34), dtype='float32', name='day/x_t_c')
     x_c_c = Input(shape=(2,), dtype='float32', name='x_c_c')
     x_c_d_1 = Input(shape=(1,), dtype='int32', name='x_c_d_1')
@@ -78,9 +78,10 @@ def build_model(time_dim=92):
     x = identity_block(x, 3, [128, 128, 512], stage=3, block='b')
     x = identity_block(x, 3, [128, 128, 512], stage=3, block='c')
 
+    x = AveragePooling1D()(x)
+
 #    x = Flatten()(x)
     x = GlobalMaxPooling1D()(x)
-#    x = GlobalAveragePooling1D()(x)
     x = concatenate([x, x_c_c, embedding_2_d_1, embedding_2_d_2])
     x = Dense(256, activation='relu')(x)
     x = Dense(64, activation='relu')(x)
