@@ -8,6 +8,10 @@ name=`echo $config_file | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 source config/env.sh
 source $config_file
 
+if [ -z $time_dim ]; then
+    time_dim=12
+fi
+
 rm -f ${model}.*
 rm -f ${report}
 rm -f ${predict}
