@@ -5,6 +5,7 @@ saved_model/
 predict_proba/
 report/
 struct_pic/
+ensemble/
 tmp/
 __pycache__/
 *test*

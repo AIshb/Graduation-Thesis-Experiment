@@ -1,13 +1,22 @@
 #!/bin/bash
 
-config_file=$1
-export CUDA_VISIBLE_DEVICES="$2"
+export CUDA_VISIBLE_DEVICES="$4"
 
 source config/env.sh
-source $config_file
 
 rm -f ${report}
 rm -f ${predict}
+
+config_file=$1
+model=$2
+predict=$3
+
+source $config_file
+
+rm -f $predict
+echo "-------------------"
+echo "predict ${model}..."
+echo "-------------------"
 
 cd src
 begin_time=`date "+%Y%m%d %H:%M:%S"`

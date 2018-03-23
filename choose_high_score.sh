@@ -69,6 +69,7 @@ while true; do
 
     score=`tail -5 report/$name | head -1 | awk -F '\t' '{print $4}'`
     echo $score >> $log
+    cat report/$name >> $log
     echo "" >> $Log
 
     if [ `echo "$score > $best_score" | bc` -eq 1 ]; then
