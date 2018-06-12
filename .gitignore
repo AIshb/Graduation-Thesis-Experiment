@@ -1,11 +1,18 @@
-*.swp
-curve/
+# 数据目录
 data/
+
+# 模型输出目录
+curve/
 saved_model/
 predict_proba/
 report/
 struct_pic/
+
+# 模型融合输出目录
 ensemble/
+
+# 临时文件
+*.swp
 tmp/
 __pycache__/
 *test*
