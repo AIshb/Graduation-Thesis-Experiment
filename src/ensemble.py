@@ -50,7 +50,7 @@ def run(preds, true):
         for idx in sub_idxs:
             print(idx)
             pred = np.mean(preds[:, idx], axis=1)
-            precision = get_report(pred, true, 'report.txt')
+            precision = get_report(pred, true, 'tmp/report.txt')
             print(precision)
             if max_precision < precision:
                 max_precision = precision
