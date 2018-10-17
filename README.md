@@ -58,7 +58,7 @@
 
 使用以下步骤来将已有的原始数据转换为模型需要的输入（如已有中间步骤的数据文件，可以酌情跳过）：
 
-1. 进入 `10.10.64.206` 服务器的 `/home/shihongbin/projects/churn` 目录，我的账号的密码为 `shb` ;
+1. 进入 `10.10.64.206` 服务器的 `/home/shihongbin/projects/churn` 目录;
 2. 将原始训练集和测试集放到 `data/` 目录下;
 3. 运行 `python3 src/shuffle.py data/train_all.csv data/train.csv data/valid.csv` 来分割原始训练集，得到新训练集和验证集;
 4. 运行 `python3 src/csv2hdf5/base.py data/train.csv data/valid.csv data/test.csv data/shuffle.hdf5` 来将csv文件转换为hdf5文件。
